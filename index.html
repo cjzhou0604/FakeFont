@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>字体混淆转换工具（支持双向）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fafafa;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .section {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      font-family: monospace;
+    }
+    .result {
+      min-height: 100px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px dashed #aaa;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 16px;
+      font-family: 'FakeSimSun', 'SimSun', serif;
+    }
+    .result2 {
+      min-height: 100px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px dashed #aaa;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 16px;
+    }
+    .btn-group {
+      text-align: center;
+      margin: 12px 0;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 0 6px;
+      font-size: 14px;
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005a9e;
+    }
+    .tip {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>字体混淆双向转换工具</h1>
+
+  <!-- 正向转换：原文 → 混淆文 -->
+  <div class="section">
+    <label for="input1">🔤 输入原始文本（SimSun 正确内容）：</label>
+    <textarea id="input1" placeholder="例如：今天天气很好！"></textarea>
+    <div class="btn-group">
+      <button onclick="convertForward()">🔄 转为混淆文本</button>
+      <button onclick="copyText('output1')">📋 复制结果</button>
+    </div>
+    <label>📤 混淆文本（请用 FakeSimSun 字体显示）：</label>
+    <div id="output1" class="result">䃏迌鼷⺈弲峨笖䴀缓狅</div>
+    <p class="tip">💡 提示：粘贴到 Word 并设置字体为 <code>FakeSimSun</code> 即可正常显示。</p>
+  </div>
+
+  <!-- 反向转换：混淆文 → 原文 -->
+  <div class="section">
+    <label for="input2">🔤 输入混淆	文本（FakeSimSun 显示的内容）：</label>
+    <textarea id="input2" placeholder="例如：霏揶揶躩爸䐮䍬"></textarea>
+    <div class="btn-group">
+      <button onclick="convertReverse()">↩️ 还原为原始文本</button>
+      <button onclick="copyText('output2')">📋 复制结果</button>
+    </div>
+    <label>📤 还原后的原始文本：</label>
+    <div id="output2" class="result2">（结果将显示在这里）</div>
+    <p class="tip">💡 用于从他人复制的“乱码”中恢复真实内容。</p>
+  </div>
+
+  <!-- ========== 在此处粘贴你的 mapping.js 内容 ========== -->
+  <script src="mapping.js"></script>
+
+  <script>
+    function convertForward() {
+      const input = document.getElementById("input1").value;
+      let output = "";
+      for (const char of input) {
+        const code = char.codePointAt(0);
+        output += forwardMap.hasOwnProperty(code) ? String.fromCodePoint(forwardMap[code]) : char;
+      }
+      document.getElementById("output1").textContent = output;
+    }
+
+    function convertReverse() {
+      const input = document.getElementById("input2").value;
+      let output = "";
+      for (const char of input) {
+        const code = char.codePointAt(0);
+        output += reverseMap.hasOwnProperty(code) ? String.fromCodePoint(reverseMap[code]) : char;
+      }
+      document.getElementById("output2").textContent = output;
+    }
+
+    function copyText(elementId) {
+      const elem = document.getElementById(elementId);
+      const text = elem.textContent;
+      if (!text || text.startsWith("（结果")) {
+        alert("请先生成有效结果！");
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ 已复制到剪贴板！");
+      }).catch(() => {
+        alert("复制失败，请手动选择文本复制。");
+      });
+    }
+
+    // 可选：实时转换（取消注释即可启用）
+    // document.getElementById("input1").addEventListener("input", convertForward);
+    // document.getElementById("input2").addEventListener("input", convertReverse);
+  </script>
+
+</body>
+</html>
